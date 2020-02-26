@@ -3,8 +3,8 @@
 > Toolkit for service communication protocols.
 
 [![Build][build.icon]][build.page]
-[![Quality][quality.icon]][quality.page]
 [![Documentation][docs.icon]][docs.page]
+[![Quality][quality.icon]][quality.page]
 [![Coverage][coverage.icon]][coverage.page]
 [![Template][template.icon]][template.page]
 

@@ -18,6 +18,15 @@ const (
 // Header extends built-in http.Header.
 type Header http.Header
 
+// Deadline returns the deadline value from the header or the fallback value.
+func (header Header) Deadline(fallback time.Duration) time.Time {
+	t, err := time.Parse(time.RFC3339, http.Header(header).Get(XDeadlineHeader))
+	if err != nil {
+		t = time.Now().Add(fallback)
+	}
+	return t
+}
+
 // NoCache returns true if the header has no-cache value of cache control.
 func (header Header) NoCache() bool {
 	return strings.EqualFold(http.Header(header).Get(CacheControlHeader), "no-cache")
@@ -32,12 +41,11 @@ func (header Header) Strict() bool {
 	return strict
 }
 
-// Timeout returns the percentage of a timeout value from the header
-// or the fallback value.
-func (header Header) Timeout(fallback time.Duration, percentage float64) time.Duration {
+// Timeout returns the timeout value from the header or the fallback value.
+func (header Header) Timeout(fallback time.Duration) time.Duration {
 	d, err := time.ParseDuration(http.Header(header).Get(XTimeoutHeader))
 	if err != nil {
 		d = fallback
 	}
-	return time.Duration(percentage * float64(d))
+	return d
 }

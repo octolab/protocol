@@ -10,6 +10,24 @@ import (
 	. "go.octolab.org/toolkit/protocol/http"
 )
 
+func TestHeader_Deadline(t *testing.T) {
+	type tuple struct {
+		value    time.Time
+		fallback bool
+	}
+
+	tests := map[string]struct {
+		header   http.Header
+		fallback time.Duration
+		expected tuple
+	}{}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			_ = test
+		})
+	}
+}
+
 func TestHeader_NoCache(t *testing.T) {
 	tests := map[string]struct {
 		header   http.Header
@@ -73,36 +91,37 @@ func TestHeader_Strict(t *testing.T) {
 }
 
 func TestHeader_Timeout(t *testing.T) {
+	type tuple struct {
+		value    time.Duration
+		fallback bool
+	}
+
 	tests := map[string]struct {
-		header     http.Header
-		fallback   time.Duration
-		percentage float64
-		expected   time.Duration
+		header   http.Header
+		fallback time.Duration
+		expected time.Duration
 	}{
 		"exists in header": {
 			http.Header{XTimeoutHeader: []string{"100ms"}},
 			time.Second,
-			0.9,
-			90 * time.Millisecond,
+			time.Second,
 		},
 		"fallback cause empty": {
 			nil,
 			time.Second,
-			0.9,
-			900 * time.Millisecond,
+			time.Second,
 		},
 		"fallback cause invalid": {
 			http.Header{XTimeoutHeader: []string{"invalid"}},
 			time.Second,
-			0.9,
-			900 * time.Millisecond,
+			time.Second,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			assert.Equal(t,
 				test.expected,
-				Header(test.header).Timeout(test.fallback, test.percentage),
+				Header(test.header).Timeout(test.fallback),
 			)
 		})
 	}
