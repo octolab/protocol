@@ -1,7 +1,6 @@
 package http_test
 
 import (
-	"net/http"
 	"testing"
 	"time"
 
@@ -12,116 +11,153 @@ import (
 
 func TestHeader_Deadline(t *testing.T) {
 	type tuple struct {
-		value    time.Time
-		fallback bool
+		deadline time.Time
+		present  bool
 	}
 
+	now := time.Now()
+
 	tests := map[string]struct {
-		header   http.Header
-		fallback time.Duration
-		expected tuple
-	}{}
+		header    Header
+		fallback  time.Duration
+		expected  tuple
+		precision time.Duration
+	}{
+		"exists in header": {
+			Header{XDeadlineHeader: []string{now.Format(time.RFC3339Nano)}},
+			time.Second,
+			tuple{now, true},
+			0,
+		},
+		"exists in header, inaccuracy": {
+			Header{XDeadlineHeader: []string{now.Format(time.RFC3339)}},
+			time.Second,
+			tuple{now, true},
+			time.Second,
+		},
+		"exists in header, timeout": {
+			Header{XTimeoutHeader: []string{"100ms"}},
+			time.Second,
+			tuple{now.Add(100 * time.Millisecond), true},
+			10 * time.Millisecond,
+		},
+		"fallback cause empty": {
+			nil,
+			time.Second,
+			tuple{now.Add(time.Second), false},
+			10 * time.Millisecond,
+		},
+		"fallback cause invalid": {
+			Header{XDeadlineHeader: []string{"invalid"}, XTimeoutHeader: []string{"invalid"}},
+			time.Second,
+			tuple{now.Add(time.Second), false},
+			10 * time.Millisecond,
+		},
+	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			_ = test
+			deadline, present := test.header.Deadline(test.fallback)
+			assert.Equal(t, test.expected.present, present)
+			assert.WithinDuration(t, test.expected.deadline, deadline, test.precision)
 		})
 	}
 }
 
 func TestHeader_NoCache(t *testing.T) {
 	tests := map[string]struct {
-		header   http.Header
+		header   Header
 		expected bool
 	}{
 		"exists in header": {
-			http.Header{CacheControlHeader: []string{"no-cache"}},
+			Header{CacheControlHeader: []string{"no-cache"}},
 			true,
 		},
 		"exists in header, case insensitive": {
-			http.Header{CacheControlHeader: []string{"No-Cache"}},
+			Header{CacheControlHeader: []string{"No-Cache"}},
 			true,
 		},
-		"empty value": {
+		"empty duration": {
 			nil,
 			false,
 		},
-		"another value": {
-			http.Header{CacheControlHeader: []string{"only-if-cached"}},
+		"another duration": {
+			Header{CacheControlHeader: []string{"only-if-cached"}},
 			false,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.expected, Header(test.header).NoCache())
+			assert.Equal(t, test.expected, test.header.NoCache())
 		})
 	}
 }
 
 func TestHeader_Strict(t *testing.T) {
 	tests := map[string]struct {
-		header   http.Header
+		header   Header
 		expected bool
 	}{
 		"exists in header, string": {
-			http.Header{XStrictHeader: []string{"true"}},
+			Header{XStrictHeader: []string{"true"}},
 			true,
 		},
 		"exists in header, numeric": {
-			http.Header{XStrictHeader: []string{"1"}},
+			Header{XStrictHeader: []string{"1"}},
 			true,
 		},
 		"exists in header, case insensitive": {
-			http.Header{XStrictHeader: []string{"True"}},
+			Header{XStrictHeader: []string{"True"}},
 			true,
 		},
-		"empty value": {
+		"empty duration": {
 			nil,
 			false,
 		},
-		"invalid value": {
-			http.Header{XStrictHeader: []string{"invalid"}},
+		"invalid duration": {
+			Header{XStrictHeader: []string{"invalid"}},
 			false,
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, test.expected, Header(test.header).Strict())
+			assert.Equal(t, test.expected, test.header.Strict())
 		})
 	}
 }
 
 func TestHeader_Timeout(t *testing.T) {
 	type tuple struct {
-		value    time.Duration
-		fallback bool
+		duration time.Duration
+		present  bool
 	}
 
 	tests := map[string]struct {
-		header   http.Header
+		header   Header
 		fallback time.Duration
-		expected time.Duration
+		expected tuple
 	}{
 		"exists in header": {
-			http.Header{XTimeoutHeader: []string{"100ms"}},
+			Header{XTimeoutHeader: []string{"100ms"}},
 			time.Second,
-			time.Second,
+			tuple{100 * time.Millisecond, true},
 		},
 		"fallback cause empty": {
 			nil,
 			time.Second,
-			time.Second,
+			tuple{time.Second, false},
 		},
 		"fallback cause invalid": {
-			http.Header{XTimeoutHeader: []string{"invalid"}},
+			Header{XTimeoutHeader: []string{"invalid"}},
 			time.Second,
-			time.Second,
+			tuple{time.Second, false},
 		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			duration, present := test.header.Timeout(test.fallback)
 			assert.Equal(t,
 				test.expected,
-				Header(test.header).Timeout(test.fallback),
+				tuple{duration, present},
 			)
 		})
 	}

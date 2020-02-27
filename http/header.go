@@ -18,21 +18,25 @@ const (
 // Header extends built-in http.Header.
 type Header http.Header
 
-// Deadline returns the deadline value from the header or the fallback value.
-func (header Header) Deadline(fallback time.Duration) time.Time {
-	t, err := time.Parse(time.RFC3339, http.Header(header).Get(XDeadlineHeader))
-	if err != nil {
-		t = time.Now().Add(fallback)
+// Deadline returns the deadline duration from the header or the present duration.
+// It also tries to use the timeout duration from the header if the deadline is invalid.
+func (header Header) Deadline(fallback time.Duration) (time.Time, bool) {
+	deadline, err := time.Parse(time.RFC3339Nano, http.Header(header).Get(XDeadlineHeader))
+	if err == nil {
+		return deadline, true
 	}
-	return t
+	if duration, present := header.Timeout(fallback); present {
+		return time.Now().Add(duration), true
+	}
+	return time.Now().Add(fallback), false
 }
 
-// NoCache returns true if the header has no-cache value of cache control.
+// NoCache returns true if the header has no-cache duration of cache control.
 func (header Header) NoCache() bool {
 	return strings.EqualFold(http.Header(header).Get(CacheControlHeader), "no-cache")
 }
 
-// Strict returns true if the header has this value.
+// Strict returns true if the header has this duration.
 func (header Header) Strict() bool {
 	var strict bool
 	if v := http.Header(header).Get(XStrictHeader); v != "" {
@@ -41,11 +45,11 @@ func (header Header) Strict() bool {
 	return strict
 }
 
-// Timeout returns the timeout value from the header or the fallback value.
-func (header Header) Timeout(fallback time.Duration) time.Duration {
-	d, err := time.ParseDuration(http.Header(header).Get(XTimeoutHeader))
+// Timeout returns the timeout duration from the header or the present duration.
+func (header Header) Timeout(fallback time.Duration) (time.Duration, bool) {
+	duration, err := time.ParseDuration(http.Header(header).Get(XTimeoutHeader))
 	if err != nil {
-		d = fallback
+		return fallback, false
 	}
-	return d
+	return duration, true
 }
