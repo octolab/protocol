@@ -20,6 +20,9 @@ type Header http.Header
 
 // Deadline returns the deadline duration from the header or the present duration.
 // It also tries to use the timeout duration from the header if the deadline is invalid.
+//
+// Deprecated: use go.octolab.org/toolkit/protocol/http/header.Deadline instead.
+// TODO:v0.0.10 will be removed
 func (header Header) Deadline(fallback time.Duration) (time.Time, bool) {
 	deadline, err := time.Parse(time.RFC3339Nano, http.Header(header).Get(XDeadlineHeader))
 	if err == nil {
@@ -46,6 +49,9 @@ func (header Header) Strict() bool {
 }
 
 // Timeout returns the timeout duration from the header or the present duration.
+//
+// Deprecated: use go.octolab.org/toolkit/protocol/http/header.Timeout instead.
+// TODO:v0.0.10 will be removed
 func (header Header) Timeout(fallback time.Duration) (time.Duration, bool) {
 	duration, err := time.ParseDuration(http.Header(header).Get(XTimeoutHeader))
 	if err != nil {
