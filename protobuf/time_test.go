@@ -38,6 +38,7 @@ func TestTime(t *testing.T) {
 			},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			test.assert(t, test.timestamp)
@@ -72,6 +73,7 @@ func TestTimestamp(t *testing.T) {
 			},
 		},
 	}
+
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			test.assert(t, test.time)
