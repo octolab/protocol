@@ -15,10 +15,11 @@ import (
 
 func TestTracer(t *testing.T) {
 	var spy bool
-	middleware := Tracer(1, func(tracer *tracer.Trace) {
+	logger := func(tracer *tracer.Trace) {
 		assert.Contains(t, tracer.String(), "call middleware_test.TestTracer.func2")
 		spy = true
-	})
+	}
+	middleware := Tracer(1, logger)
 
 	var handler http.Handler
 	handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -27,11 +28,18 @@ func TestTracer(t *testing.T) {
 	})
 	handler = middleware(handler)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	handler.ServeHTTP(httptest.NewRecorder(), (&http.Request{}).WithContext(ctx))
-	assert.False(t, spy)
+	t.Run("without log", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
-	cancel()
-	handler.ServeHTTP(httptest.NewRecorder(), (&http.Request{}).WithContext(ctx))
-	assert.True(t, spy)
+		handler.ServeHTTP(httptest.NewRecorder(), (&http.Request{}).WithContext(ctx))
+		assert.False(t, spy)
+	})
+	t.Run("with log", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		handler.ServeHTTP(httptest.NewRecorder(), (&http.Request{}).WithContext(ctx))
+		assert.True(t, spy)
+	})
 }
