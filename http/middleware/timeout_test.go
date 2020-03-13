@@ -13,6 +13,18 @@ import (
 )
 
 func TestDeadline(t *testing.T) {
+	var timeout = func(timeout time.Duration) http.HandlerFunc {
+		return func(rw http.ResponseWriter, req *http.Request) {
+			timer := time.NewTimer(timeout)
+			select {
+			case <-req.Context().Done():
+				assert.True(t, true)
+			case <-timer.C:
+				assert.True(t, false)
+			}
+			assert.True(t, timer.Stop())
+		}
+	}
 	corrector := func(deadline time.Time, present bool) time.Time {
 		correction := time.Millisecond
 		if present && deadline.After(time.Now().Add(2*correction)) {
@@ -27,24 +39,30 @@ func TestDeadline(t *testing.T) {
 		handler  http.Handler
 	}{
 		"exists in header": {
-			time.Second,
-			&http.Request{
+			fallback: time.Second,
+			request: &http.Request{
 				Header: http.Header{
-					header.XDeadlineHeader: []string{
+					header.XDeadline: []string{
 						time.Now().Add(10 * time.Millisecond).Format(time.RFC3339Nano),
 					},
 				},
 			},
-			http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-				timer := time.NewTimer(20 * time.Millisecond)
-				select {
-				case <-req.Context().Done():
-					assert.True(t, true)
-				case <-timer.C:
-					assert.True(t, false)
-				}
-				assert.True(t, timer.Stop())
-			}),
+			handler: timeout(15 * time.Millisecond),
+		},
+		"fallback cause empty": {
+			fallback: 10 * time.Millisecond,
+			request:  &http.Request{},
+			handler:  timeout(15 * time.Millisecond),
+		},
+		"fallback cause invalid": {
+			fallback: 10 * time.Millisecond,
+			request: &http.Request{
+				Header: http.Header{
+					header.XDeadline: []string{"bad"},
+					header.XTimeout:  []string{"bad"},
+				},
+			},
+			handler: timeout(15 * time.Millisecond),
 		},
 	}
 
@@ -58,6 +76,18 @@ func TestDeadline(t *testing.T) {
 }
 
 func TestTimeout(t *testing.T) {
+	var timeout = func(timeout time.Duration) http.HandlerFunc {
+		return func(rw http.ResponseWriter, req *http.Request) {
+			timer := time.NewTimer(timeout)
+			select {
+			case <-req.Context().Done():
+				assert.True(t, true)
+			case <-timer.C:
+				assert.True(t, false)
+			}
+			assert.True(t, timer.Stop())
+		}
+	}
 	corrector := func(timeout time.Duration, present bool) time.Duration {
 		correction := time.Millisecond
 		if present && timeout > 2*correction {
@@ -72,24 +102,27 @@ func TestTimeout(t *testing.T) {
 		handler  http.Handler
 	}{
 		"exists in header": {
-			time.Second,
-			&http.Request{
+			fallback: time.Second,
+			request: &http.Request{
 				Header: http.Header{
-					header.XTimeoutHeader: []string{
-						(10 * time.Millisecond).String(),
-					},
+					header.XTimeout: []string{"10ms"},
 				},
 			},
-			http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-				timer := time.NewTimer(20 * time.Millisecond)
-				select {
-				case <-req.Context().Done():
-					assert.True(t, true)
-				case <-timer.C:
-					assert.True(t, false)
-				}
-				assert.True(t, timer.Stop())
-			}),
+			handler: timeout(15 * time.Millisecond),
+		},
+		"fallback cause empty": {
+			fallback: 10 * time.Millisecond,
+			request:  &http.Request{},
+			handler:  timeout(15 * time.Millisecond),
+		},
+		"fallback cause invalid": {
+			fallback: 10 * time.Millisecond,
+			request: &http.Request{
+				Header: http.Header{
+					header.XTimeout: []string{"bad"},
+				},
+			},
+			handler: timeout(15 * time.Millisecond),
 		},
 	}
 

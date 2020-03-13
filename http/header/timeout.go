@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	XDeadlineHeader = "X-Deadline"
-	XTimeoutHeader  = "X-Timeout"
+	XDeadline = "X-Deadline"
+	XTimeout  = "X-Timeout"
 )
 
 // Deadline returns the deadline timestamp from the header.
@@ -16,7 +16,7 @@ const (
 // Last it tries to use the fallback duration to calculate
 // the appropriate deadline.
 func Deadline(header http.Header, fallback time.Duration) (time.Time, bool) {
-	deadline, err := time.Parse(time.RFC3339Nano, header.Get(XDeadlineHeader))
+	deadline, err := time.Parse(time.RFC3339Nano, header.Get(XDeadline))
 	if err == nil {
 		return deadline, true
 	}
@@ -30,7 +30,7 @@ func Deadline(header http.Header, fallback time.Duration) (time.Time, bool) {
 // It tries to use the fallback duration if the timeout is invalid
 // or doesn't exist in the header.
 func Timeout(header http.Header, fallback time.Duration) (time.Duration, bool) {
-	duration, err := time.ParseDuration(header.Get(XTimeoutHeader))
+	duration, err := time.ParseDuration(header.Get(XTimeout))
 	if err != nil {
 		return fallback, false
 	}
