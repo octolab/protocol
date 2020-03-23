@@ -11,6 +11,8 @@ const (
 	ContentType  = "Content-Type"
 	Referer      = "Referer"
 	UserAgent    = "User-Agent"
+	XRequestID   = "X-Request-Id"
+	XSource      = "X-Source"
 	XStrict      = "X-Strict"
 )
 
