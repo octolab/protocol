@@ -39,3 +39,13 @@ func Timeout(
 		})
 	}
 }
+
+// HardTimeout returns the Middleware to inject the timeout duration
+// into the request context.
+// The difference between the method and the Timeout middleware is
+// a more strict guarantee about the time execution.
+func HardTimeout(timeout time.Duration) func(http.Handler) http.Handler {
+	return func(handler http.Handler) http.Handler {
+		return http.TimeoutHandler(handler, timeout, http.StatusText(http.StatusRequestTimeout))
+	}
+}

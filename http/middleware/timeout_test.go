@@ -134,3 +134,22 @@ func TestTimeout(t *testing.T) {
 		})
 	}
 }
+
+func TestHardTimeout(t *testing.T) {
+	var timeout = func(timeout time.Duration) http.HandlerFunc {
+		return func(rw http.ResponseWriter, req *http.Request) {
+			timer := time.NewTimer(timeout)
+			select {
+			case <-req.Context().Done():
+				assert.True(t, true)
+			case <-timer.C:
+				assert.True(t, false)
+			}
+			assert.True(t, timer.Stop())
+		}
+	}
+
+	middleware := HardTimeout(10 * time.Millisecond)
+	recorder := httptest.NewRecorder()
+	middleware(timeout(15*time.Millisecond)).ServeHTTP(recorder, new(http.Request))
+}
