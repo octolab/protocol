@@ -46,6 +46,6 @@ func Timeout(
 // a more strict guarantee about the time execution.
 func HardTimeout(timeout time.Duration) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
-		return http.TimeoutHandler(handler, timeout, http.StatusText(http.StatusRequestTimeout))
+		return http.TimeoutHandler(handler, timeout, http.StatusText(http.StatusServiceUnavailable))
 	}
 }

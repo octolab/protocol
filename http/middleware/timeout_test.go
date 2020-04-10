@@ -68,8 +68,8 @@ func TestDeadline(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			middleware := Deadline(test.fallback, corrector)
 			recorder := httptest.NewRecorder()
+			middleware := Deadline(test.fallback, corrector)
 			middleware(test.handler).ServeHTTP(recorder, test.request)
 		})
 	}
@@ -128,28 +128,59 @@ func TestTimeout(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			middleware := Timeout(test.fallback, corrector)
 			recorder := httptest.NewRecorder()
+			middleware := Timeout(test.fallback, corrector)
 			middleware(test.handler).ServeHTTP(recorder, test.request)
 		})
 	}
 }
 
 func TestHardTimeout(t *testing.T) {
-	var timeout = func(timeout time.Duration) http.HandlerFunc {
-		return func(rw http.ResponseWriter, req *http.Request) {
-			timer := time.NewTimer(timeout)
-			select {
-			case <-req.Context().Done():
-				assert.True(t, true)
-			case <-timer.C:
-				assert.True(t, false)
-			}
-			assert.True(t, timer.Stop())
-		}
+	tests := map[string]struct {
+		timeout  time.Duration
+		handler  func(time.Duration) http.HandlerFunc
+		expected int
+	}{
+		"success call": {
+			timeout: time.Hour,
+			handler: func(timeout time.Duration) http.HandlerFunc {
+				return func(rw http.ResponseWriter, req *http.Request) {
+					timer := time.NewTimer(10 * time.Millisecond)
+					select {
+					case <-req.Context().Done():
+						assert.True(t, false)
+					case <-timer.C:
+						assert.True(t, true)
+					}
+					assert.False(t, timer.Stop())
+				}
+			},
+			expected: http.StatusOK,
+		},
+		"timeout occurred": {
+			timeout: 10 * time.Millisecond,
+			handler: func(timeout time.Duration) http.HandlerFunc {
+				return func(rw http.ResponseWriter, req *http.Request) {
+					timer := time.NewTimer(timeout + 5*time.Millisecond)
+					select {
+					case <-req.Context().Done():
+						assert.True(t, true)
+					case <-timer.C:
+						assert.True(t, false)
+					}
+					assert.True(t, timer.Stop())
+				}
+			},
+			expected: http.StatusServiceUnavailable,
+		},
 	}
 
-	middleware := HardTimeout(10 * time.Millisecond)
-	recorder := httptest.NewRecorder()
-	middleware(timeout(15*time.Millisecond)).ServeHTTP(recorder, new(http.Request))
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			recorder := httptest.NewRecorder()
+			middleware := HardTimeout(test.timeout)
+			middleware(test.handler(test.timeout)).ServeHTTP(recorder, new(http.Request))
+			assert.Equal(t, test.expected, recorder.Code)
+		})
+	}
 }
