@@ -6,4 +6,4 @@ import (
 	. "go.octolab.org/toolkit/protocol/http/router"
 )
 
-var _ Interface = http.NewServeMux()
+var _ Interface = &http.ServeMux{}
