@@ -62,7 +62,9 @@ func TestRun(t *testing.T) {
 			},
 			func() chan context.Context {
 				ch := make(chan context.Context, 1)
-				ch <- context.Background()
+				time.AfterFunc(10*time.Millisecond, func() {
+					ch <- context.Background()
+				})
 				return ch
 			},
 			assert.Error,
@@ -83,7 +85,9 @@ func TestRun(t *testing.T) {
 			},
 			func() chan context.Context {
 				ch := make(chan context.Context, 1)
-				ch <- context.Background()
+				time.AfterFunc(10*time.Millisecond, func() {
+					ch <- context.Background()
+				})
 				return ch
 			},
 			assert.NoError,

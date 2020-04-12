@@ -6,9 +6,10 @@ package server_test
 
 import (
 	context "context"
-	gomock "github.com/golang/mock/gomock"
 	net "net"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockInterface is a mock of Interface interface
