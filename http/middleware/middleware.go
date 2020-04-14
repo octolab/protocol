@@ -2,8 +2,8 @@ package middleware
 
 import "net/http"
 
-// Middleware defines a Handler wrapper.
-type Middleware func(http.Handler) http.Handler
+// Type defines a Handler wrapper.
+type Type func(http.Handler) http.Handler
 
 // Stack provides the method to wrap a Handler.
 type Stack []func(http.Handler) http.Handler
