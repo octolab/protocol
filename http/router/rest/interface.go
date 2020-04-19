@@ -38,4 +38,11 @@ type Interface interface {
 	// Trace adds the route that matches a TRACE HTTP method to
 	// execute the handler.
 	Trace(string, http.HandlerFunc)
+
+	// NotFound defines the handler to respond whenever a route could
+	// not be found.
+	NotFound(http.HandlerFunc)
+	// MethodNotAllowed defines the handler to respond whenever a method is
+	// not allowed.
+	MethodNotAllowed(http.HandlerFunc)
 }
