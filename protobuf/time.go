@@ -15,7 +15,7 @@ func Time(ts *timestamp.Timestamp) *time.Time {
 	}
 	tp, err := ptypes.Timestamp(ts)
 	if err != nil {
-		panic(errors.Wrapf(err, "converting %#v into time.Time", *ts))
+		panic(errors.Wrapf(err, "converting %#v into time.Time", ts))
 	}
 	return &tp
 }

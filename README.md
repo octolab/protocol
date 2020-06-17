@@ -22,8 +22,8 @@ $ go get go.octolab.org/toolkit/protocol@latest
 
 made with ❤️ for everyone
 
-[build.page]:       https://travis-ci.org/octolab/protocol
-[build.icon]:       https://travis-ci.org/octolab/protocol.svg?branch=master
+[build.page]:       https://travis-ci.com/octolab/protocol
+[build.icon]:       https://travis-ci.com/octolab/protocol.svg?branch=master
 [coverage.page]:    https://codeclimate.com/github/octolab/protocol/test_coverage
 [coverage.icon]:    https://api.codeclimate.com/v1/badges/e9768ab3c265831350f2/test_coverage
 [design.page]:      https://www.notion.so/33715348cc114ea79dd350a25d16e0b0?r=0b753cbf767346f5a6fd51194829a2f3

@@ -18,8 +18,6 @@ go:
   - 1.13.x
   - 1.14.x
 
-go_import_path: go.octolab.org/toolkit/protocol
-
 jobs:
   allow_failures:
     - go: master
@@ -27,7 +25,7 @@ jobs:
 before_script:
   - |
     if [[ $TRAVIS_GO_VERSION == 1.14* ]]; then
-      curl -L $CODECLIMATE > /home/travis/gopath/bin/cc-test-reporter
+      curl -sL $CODECLIMATE > /home/travis/gopath/bin/cc-test-reporter
       chmod +x /home/travis/gopath/bin/cc-test-reporter
       cc-test-reporter before-build
     fi
@@ -43,7 +41,7 @@ script:
 after_script:
   - |
     if [[ $TRAVIS_GO_VERSION == 1.14* ]]; then
-      cc-test-reporter after-build -t gocov -p $(basename $(go list -m)) --exit-code $TRAVIS_TEST_RESULT
+      cc-test-reporter after-build -t gocov -p $(go list -m) --exit-code $TRAVIS_TEST_RESULT
     fi
 
 notifications:
