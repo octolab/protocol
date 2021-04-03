@@ -1,4 +1,4 @@
-> # 🧰 toolkit/protocol
+> # 📡 protocol 🛰
 >
 > Toolkit for service communication protocols.
 
