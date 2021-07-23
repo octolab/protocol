@@ -12,30 +12,30 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockInterface is a mock of Interface interface
+// MockInterface is a mock of Interface interface.
 type MockInterface struct {
 	ctrl     *gomock.Controller
 	recorder *MockInterfaceMockRecorder
 }
 
-// MockInterfaceMockRecorder is the mock recorder for MockInterface
+// MockInterfaceMockRecorder is the mock recorder for MockInterface.
 type MockInterfaceMockRecorder struct {
 	mock *MockInterface
 }
 
-// NewMockInterface creates a new mock instance
+// NewMockInterface creates a new mock instance.
 func NewMockInterface(ctrl *gomock.Controller) *MockInterface {
 	mock := &MockInterface{ctrl: ctrl}
 	mock.recorder = &MockInterfaceMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockInterface) EXPECT() *MockInterfaceMockRecorder {
 	return m.recorder
 }
 
-// Close mocks base method
+// Close mocks base method.
 func (m *MockInterface) Close() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Close")
@@ -43,13 +43,13 @@ func (m *MockInterface) Close() error {
 	return ret0
 }
 
-// Close indicates an expected call of Close
+// Close indicates an expected call of Close.
 func (mr *MockInterfaceMockRecorder) Close() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockInterface)(nil).Close))
 }
 
-// ListenAndServe mocks base method
+// ListenAndServe mocks base method.
 func (m *MockInterface) ListenAndServe() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListenAndServe")
@@ -57,25 +57,25 @@ func (m *MockInterface) ListenAndServe() error {
 	return ret0
 }
 
-// ListenAndServe indicates an expected call of ListenAndServe
+// ListenAndServe indicates an expected call of ListenAndServe.
 func (mr *MockInterfaceMockRecorder) ListenAndServe() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListenAndServe", reflect.TypeOf((*MockInterface)(nil).ListenAndServe))
 }
 
-// RegisterOnShutdown mocks base method
+// RegisterOnShutdown mocks base method.
 func (m *MockInterface) RegisterOnShutdown(arg0 func()) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "RegisterOnShutdown", arg0)
 }
 
-// RegisterOnShutdown indicates an expected call of RegisterOnShutdown
+// RegisterOnShutdown indicates an expected call of RegisterOnShutdown.
 func (mr *MockInterfaceMockRecorder) RegisterOnShutdown(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterOnShutdown", reflect.TypeOf((*MockInterface)(nil).RegisterOnShutdown), arg0)
 }
 
-// Serve mocks base method
+// Serve mocks base method.
 func (m *MockInterface) Serve(arg0 net.Listener) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Serve", arg0)
@@ -83,13 +83,13 @@ func (m *MockInterface) Serve(arg0 net.Listener) error {
 	return ret0
 }
 
-// Serve indicates an expected call of Serve
+// Serve indicates an expected call of Serve.
 func (mr *MockInterfaceMockRecorder) Serve(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Serve", reflect.TypeOf((*MockInterface)(nil).Serve), arg0)
 }
 
-// Shutdown mocks base method
+// Shutdown mocks base method.
 func (m *MockInterface) Shutdown(arg0 context.Context) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Shutdown", arg0)
@@ -97,7 +97,7 @@ func (m *MockInterface) Shutdown(arg0 context.Context) error {
 	return ret0
 }
 
-// Shutdown indicates an expected call of Shutdown
+// Shutdown indicates an expected call of Shutdown.
 func (mr *MockInterfaceMockRecorder) Shutdown(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Shutdown", reflect.TypeOf((*MockInterface)(nil).Shutdown), arg0)
