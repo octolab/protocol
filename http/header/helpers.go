@@ -12,6 +12,7 @@ const (
 	Referer      = "Referer"
 	UserAgent    = "User-Agent"
 	XRequestID   = "X-Request-Id"
+	XRequestUUID = "X-Request-UUID"
 	XSource      = "X-Source"
 	XStrict      = "X-Strict"
 )
